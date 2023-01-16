@@ -19,9 +19,9 @@ func (o Orders) Less(i, j int) bool { return o[i].Timestamp < o[j].Timestamp }
 func (o Orders) Swap(i, j int)      { o[i], o[j] = o[j], o[i] }
 
 // NewOrder is constructor of Order struct
-func NewOrder(isBid bool, size float64) *Order {
+func NewOrder(isBid bool, amount float64) *Order {
 	return &Order{
-		Amount:    size,
+		Amount:    amount,
 		Bid:       isBid,
 		Timestamp: time.Now().UnixNano(),
 	}

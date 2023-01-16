@@ -2,13 +2,13 @@ package matchingengine
 
 // Match struct holds information about a matched order in the matching engine.
 // Ask and Bid are pointers to Order structs representing the ask and bid orders that were matched.
-// SizeFilled is a float64 representing the size of the match.
+// AmountFilled is a float64 representing the size of the match.
 // Price is also a float64 representing the price of the match.
 type Match struct {
-	Ask        *Order
-	Bid        *Order
-	SizeFilled float64
-	Price      float64
+	Ask          *Order
+	Bid          *Order
+	AmountFilled float64
+	Price        float64
 }
 
 type Matches []Match
@@ -33,7 +33,7 @@ func (a ByBestAsk) Swap(i, j int)      { a.Limits[i], a.Limits[j] = a.Limits[j],
 type ByBestBid struct{ Limits }
 
 func (b ByBestBid) Len() int           { return len(b.Limits) }
-func (b ByBestBid) Less(i, j int) bool { return b.Limits[i].Price < b.Limits[j].Price }
+func (b ByBestBid) Less(i, j int) bool { return b.Limits[i].Price > b.Limits[j].Price }
 func (b ByBestBid) Swap(i, j int)      { b.Limits[i], b.Limits[j] = b.Limits[j], b.Limits[i] }
 
 // NewLimit is constructor of Limit struct
@@ -72,7 +72,7 @@ func (l *Limit) Fill(o *Order) Matches {
 		match := l.fillOrder(order, o)
 		matches = append(matches, match)
 
-		l.TotalVolume -= match.SizeFilled
+		l.TotalVolume -= match.AmountFilled
 
 		if order.IsFilled() {
 			ordersToDelete = append(ordersToDelete, order)
@@ -120,9 +120,9 @@ func (l *Limit) fillOrder(a, b *Order) Match {
 
 	// Create and return a Match struct to find out matches for specific order
 	return Match{
-		Ask:        ask,
-		Bid:        bid,
-		Price:      l.Price,
-		SizeFilled: sizeFilled,
+		Ask:          ask,
+		Bid:          bid,
+		Price:        l.Price,
+		AmountFilled: sizeFilled,
 	}
 }
