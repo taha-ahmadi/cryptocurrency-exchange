@@ -2,10 +2,12 @@ package matchingengine
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 )
 
 type Order struct {
+	ID        int64   // The ID concept is only for external APIs
 	Amount    float64 // Amount of our crypto
 	Bid       bool    // Is this a sell or buy Order
 	Limit     *Limit  // To keep track of what limit this order is set in
@@ -21,6 +23,7 @@ func (o Orders) Swap(i, j int)      { o[i], o[j] = o[j], o[i] }
 // NewOrder is constructor of Order struct
 func NewOrder(isBid bool, amount float64) *Order {
 	return &Order{
+		ID:        int64(rand.Intn(1000000)),
 		Amount:    amount,
 		Bid:       isBid,
 		Timestamp: time.Now().UnixNano(),
