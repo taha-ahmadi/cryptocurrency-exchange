@@ -6,7 +6,7 @@ import (
 
 // Orderbook contains our asks and bids; orderbook would need to be persisted in a db somehow and shared between clients
 // In real world exchanges we can use distributed event stream like Apache Kafka. By doing this, we could always replay
-// the orders deterministically if the exchange crashes and restore the order books to their original state.
+// the Orders deterministically if the exchange crashes and restore the order books to their original state.
 type Orderbook struct {
 	asks []*Limit // If you want to sell a crypto for a certain size of crypto and certain price, you make an ask
 	bids []*Limit // If you want to buy a crypto for a certain size of crypto and certain price, you make a bid
@@ -18,6 +18,9 @@ type Orderbook struct {
 	// So we will make map that point to specific limit
 	AskLimits map[float64]*Limit
 	BidLimits map[float64]*Limit
+
+	// To keep track Orders for operations like canceling through APIs
+	Orders map[int64]*Order
 }
 
 // NewOrderbook is constructor of Orderbook struct
@@ -28,6 +31,8 @@ func NewOrderbook() *Orderbook {
 
 		AskLimits: make(map[float64]*Limit),
 		BidLimits: make(map[float64]*Limit),
+
+		Orders: make(map[int64]*Order),
 	}
 }
 
@@ -36,17 +41,17 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 	var matches Matches
 
 	if o.Bid {
-		// Check if the amount of the order is greater than the total volume of the ask orders
+		// Check if the amount of the order is greater than the total volume of the ask Orders
 		if o.Amount > ob.AskTotalVolume() {
 			panic("there is not enough volume in the orderbook")
 		}
-		// Iterate through all the ask orders
+		// Iterate through all the ask Orders
 		for _, ask := range ob.Asks() {
 			// Fill the ask order with the market order
 			asksMatches := ask.Fill(o)
 			matches = append(matches, asksMatches...)
 
-			// Check if there are no more orders in the limit. we can keep limits without any orders but we will
+			// Check if there are no more Orders in the limit. we can keep limits without any Orders but we will
 			// remove it because of memory efficiency
 			if len(ask.Orders) == 0 {
 				ob.clearLimit(true, ask)
@@ -91,6 +96,7 @@ func (ob *Orderbook) PlaceLimitOrder(price float64, o *Order) {
 		}
 	}
 
+	ob.Orders[o.ID] = o
 	limit.AddOrder(o)
 }
 
@@ -117,6 +123,7 @@ func (ob *Orderbook) clearLimit(isBid bool, l *Limit) {
 // CancelOrder will delete the order from the limit
 func (ob *Orderbook) CancelOrder(o *Order) {
 	o.Limit.DeleteOrder(o)
+	delete(ob.Orders, o.ID)
 }
 
 // BidTotalVolume returns total volume of the asks in the market

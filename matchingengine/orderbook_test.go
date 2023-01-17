@@ -16,6 +16,8 @@ func TestPlaceMarketOrder(t *testing.T) {
 	ob.PlaceLimitOrder(120, sellOrder1)
 	ob.PlaceLimitOrder(100, sellOrder2)
 	ob.PlaceLimitOrder(220, buyOrder)
+	require.Equal(t, 3, len(ob.Orders))
+	require.Equal(t, sellOrder1, ob.Orders[sellOrder1.ID])
 
 	// Test case 1: Place a market buy order with amount 30
 	buyMarketOrder := NewOrder(true, 10.0)
@@ -50,7 +52,7 @@ func TestPlaceMarketOrder(t *testing.T) {
 		t.Errorf("Expected matches to be of size 3 but got %f", matches[0].AmountFilled)
 	}
 
-	// Test case 3: Place a sell market order with amount greater than the total volume of bid orders
+	// Test case 3: Place a sell market order with amount greater than the total volume of bid Orders
 	sellOrder4 := NewOrder(false, 100)
 	defer func() {
 		if r := recover(); r == nil {
@@ -59,7 +61,7 @@ func TestPlaceMarketOrder(t *testing.T) {
 	}()
 	ob.PlaceMarketOrder(sellOrder4)
 
-	// Test case 4: Place a buy market order with amount less than the total volume of ask orders
+	// Test case 4: Place a buy market order with amount less than the total volume of ask Orders
 	// and check if the matches returned are correct
 	asks1 := NewOrder(false, 50)
 	ob.PlaceLimitOrder(100, asks1)
@@ -117,46 +119,42 @@ func TestCancelOrder(t *testing.T) {
 	// Initialize an empty orderbook
 	ob := NewOrderbook()
 
-	// Create some test limits
-	l1 := NewLimit(100.0)
-	l2 := NewLimit(50.0)
-
-	// Add the limits to the orderbook's asks
-	ob.asks = append(ob.asks, l1, l2)
-
-	// Create three test orders and remove one of them
+	// Create three test Orders and remove one of them
 	o1 := NewOrder(false, 10.0)
 	o2 := NewOrder(false, 15.0)
 	o3 := NewOrder(false, 35.0)
-	l1.AddOrder(o1)
-	l1.AddOrder(o2)
-	l1.AddOrder(o3)
+	ob.PlaceLimitOrder(100.0, o1)
+	ob.PlaceLimitOrder(150.0, o2)
+	ob.PlaceLimitOrder(200.0, o3)
+
+	require.Equal(t, 3, len(ob.Orders))
 
 	// Cancel the order
 	ob.CancelOrder(o1)
 
 	// Check if the order has been deleted from the limit
-	require.Equal(t, 2, len(l1.Orders))
+	require.Equal(t, 2, len(ob.Orders))
+	_, ok := ob.Orders[o1.ID]
+	require.False(t, ok)
+	_, ok = ob.Orders[o2.ID]
+	require.True(t, ok)
 }
 
 func TestBidTotalVolume(t *testing.T) {
 	// Initialize an empty orderbook
-	ob := &Orderbook{
-		asks:      []*Limit{},
-		bids:      []*Limit{},
-		AskLimits: map[float64]*Limit{},
-		BidLimits: map[float64]*Limit{},
-	}
+	ob := NewOrderbook()
 
 	// Create some test limits
-	l1 := &Limit{TotalVolume: 15.0}
-	l2 := &Limit{TotalVolume: 5.0}
-	l3 := &Limit{TotalVolume: 15.0}
+	o1 := NewOrder(true, 15.0)
+	o2 := NewOrder(true, 5.0)
+	o3 := NewOrder(true, 15.0)
 
 	// Add the limits to the orderbook's bids
-	ob.bids = append(ob.bids, l1, l2, l3)
+	ob.PlaceLimitOrder(100, o1)
+	ob.PlaceLimitOrder(100, o2)
+	ob.PlaceLimitOrder(100, o3)
 
-	// Calculate the total volume of the bid orders
+	// Calculate the total volume of the bid Orders
 	totalVolume := ob.BidTotalVolume()
 
 	// Check if the total volume is equal to 30
@@ -168,14 +166,16 @@ func TestAskTotalVolume(t *testing.T) {
 	ob := NewOrderbook()
 
 	// Create some test limits
-	l1 := &Limit{TotalVolume: 10.0}
-	l2 := &Limit{TotalVolume: 5.0}
-	l3 := &Limit{TotalVolume: 15.0}
+	o1 := NewOrder(false, 10.0)
+	o2 := NewOrder(false, 5.0)
+	o3 := NewOrder(false, 15.0)
 
 	// Add the limits to the orderbook's asks
-	ob.asks = append(ob.asks, l1, l2, l3)
+	ob.PlaceLimitOrder(100, o1)
+	ob.PlaceLimitOrder(100, o2)
+	ob.PlaceLimitOrder(100, o3)
 
-	// Calculate the total volume of the ask orders
+	// Calculate the total volume of the ask Orders
 	totalVolume := ob.AskTotalVolume()
 
 	// Check if the total volume is equal to 30
