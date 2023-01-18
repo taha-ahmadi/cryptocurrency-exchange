@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/api"
 	"net/http"
 )
@@ -54,4 +55,22 @@ func (c *MMClient) PlaceLimitOrder(params *PlaceLimitOrderParams) (*api.PlaceLim
 		return nil, err
 	}
 	return result, nil
+}
+
+func (c *MMClient) CancelOrder(orderID uint64) error {
+	endpoint := fmt.Sprintf("%s/order/%d", Endpoint, orderID)
+	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return err
+	}
+
+	_ = resp
+
+	return nil
+
 }
