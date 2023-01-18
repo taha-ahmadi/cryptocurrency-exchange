@@ -80,6 +80,10 @@ type PlaceOrderRequest struct {
 	Market Market
 }
 
+type PlaceLimitOrderResponse struct {
+	OrderID uint64
+}
+
 type Order struct {
 	UserID    uint64
 	ID        uint64
@@ -160,7 +164,11 @@ func (ex *Exchange) HandlePlaceOrder(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, map[string]any{"msg": "cannot placeOrder!"})
 		}
 
-		return c.JSON(http.StatusCreated, map[string]any{"msg": "order submitted successfully"})
+		resp := &PlaceLimitOrderResponse{
+			OrderID: order.ID,
+		}
+
+		return c.JSON(http.StatusCreated, resp)
 	}
 
 	return c.JSON(http.StatusInternalServerError, map[string]any{"msg": "Makert Not Exitst!"})
