@@ -20,7 +20,7 @@ type Orderbook struct {
 	BidLimits map[float64]*Limit
 
 	// To keep track Orders for operations like canceling through APIs
-	Orders map[int64]*Order
+	Orders map[uint64]*Order
 }
 
 // NewOrderbook is constructor of Orderbook struct
@@ -32,7 +32,7 @@ func NewOrderbook() *Orderbook {
 		AskLimits: make(map[float64]*Limit),
 		BidLimits: make(map[float64]*Limit),
 
-		Orders: make(map[int64]*Order),
+		Orders: make(map[uint64]*Order),
 	}
 }
 

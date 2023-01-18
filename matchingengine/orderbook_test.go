@@ -10,9 +10,9 @@ func TestPlaceMarketOrder(t *testing.T) {
 	ob := NewOrderbook()
 
 	// Add some asks and bids to the Orderbook
-	sellOrder1 := NewOrder(false, 5.0)
-	sellOrder2 := NewOrder(false, 8.0)
-	buyOrder := NewOrder(true, 30)
+	sellOrder1 := NewOrder(false, 5.0, 0)
+	sellOrder2 := NewOrder(false, 8.0, 0)
+	buyOrder := NewOrder(true, 30, 0)
 	ob.PlaceLimitOrder(120, sellOrder1)
 	ob.PlaceLimitOrder(100, sellOrder2)
 	ob.PlaceLimitOrder(220, buyOrder)
@@ -20,7 +20,7 @@ func TestPlaceMarketOrder(t *testing.T) {
 	require.Equal(t, sellOrder1, ob.Orders[sellOrder1.ID])
 
 	// Test case 1: Place a market buy order with amount 30
-	buyMarketOrder := NewOrder(true, 10.0)
+	buyMarketOrder := NewOrder(true, 10.0, 0)
 	matches := ob.PlaceMarketOrder(buyMarketOrder)
 
 	// check if the order is filled
@@ -36,7 +36,7 @@ func TestPlaceMarketOrder(t *testing.T) {
 	}
 
 	// Test case 2: Place a market sell order with amount 50
-	sellOrder3 := NewOrder(false, 3)
+	sellOrder3 := NewOrder(false, 3, 0)
 	matches = ob.PlaceMarketOrder(sellOrder3)
 
 	// check if the order is filled
@@ -53,7 +53,7 @@ func TestPlaceMarketOrder(t *testing.T) {
 	}
 
 	// Test case 3: Place a sell market order with amount greater than the total volume of bid Orders
-	sellOrder4 := NewOrder(false, 100)
+	sellOrder4 := NewOrder(false, 100, 0)
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("The code did not panic")
@@ -63,13 +63,13 @@ func TestPlaceMarketOrder(t *testing.T) {
 
 	// Test case 4: Place a buy market order with amount less than the total volume of ask Orders
 	// and check if the matches returned are correct
-	asks1 := NewOrder(false, 50)
+	asks1 := NewOrder(false, 50, 0)
 	ob.PlaceLimitOrder(100, asks1)
-	ask2 := NewOrder(false, 30)
+	ask2 := NewOrder(false, 30, 0)
 	ob.PlaceLimitOrder(110, ask2)
-	ask3 := NewOrder(false, 20)
+	ask3 := NewOrder(false, 20, 0)
 	ob.PlaceLimitOrder(120, ask3)
-	buyOrder = NewOrder(true, 50)
+	buyOrder = NewOrder(true, 50, 0)
 	matches2 := ob.PlaceMarketOrder(buyOrder)
 	if len(matches2) != 1 || matches2[0].AmountFilled != 50 {
 		t.Error("Expected one match with size filled of 50, got: ", matches2)
@@ -81,7 +81,7 @@ func TestPlaceLimitOrder(t *testing.T) {
 	ob := NewOrderbook()
 
 	// Create an order
-	sellOrder := NewOrder(false, 10)
+	sellOrder := NewOrder(false, 10, 0)
 
 	// Place the sellOrder
 	ob.PlaceLimitOrder(100, sellOrder)
@@ -90,7 +90,7 @@ func TestPlaceLimitOrder(t *testing.T) {
 	require.Equal(t, 1, len(ob.AskLimits[100].Orders))
 
 	// Create another order with the same price
-	secondSellOrder := NewOrder(false, 5)
+	secondSellOrder := NewOrder(false, 5, 0)
 	ob.PlaceLimitOrder(100, secondSellOrder)
 
 	// Check if the second order was added to the same limit
@@ -98,7 +98,7 @@ func TestPlaceLimitOrder(t *testing.T) {
 	require.Equal(t, 1, len(ob.asks))
 
 	// Create an order
-	buyOrder := NewOrder(true, 10)
+	buyOrder := NewOrder(true, 10, 0)
 
 	// Place the buyOrder
 	ob.PlaceLimitOrder(100, buyOrder)
@@ -107,7 +107,7 @@ func TestPlaceLimitOrder(t *testing.T) {
 	require.Equal(t, 1, len(ob.BidLimits[100].Orders))
 
 	// Create another order with the same price
-	secondBuyOrder := NewOrder(true, 5)
+	secondBuyOrder := NewOrder(true, 5, 0)
 	ob.PlaceLimitOrder(100, secondBuyOrder)
 
 	// Check if the second order was added to the same limit
@@ -120,9 +120,9 @@ func TestCancelOrder(t *testing.T) {
 	ob := NewOrderbook()
 
 	// Create three test Orders and remove one of them
-	o1 := NewOrder(false, 10.0)
-	o2 := NewOrder(false, 15.0)
-	o3 := NewOrder(false, 35.0)
+	o1 := NewOrder(false, 10.0, 0)
+	o2 := NewOrder(false, 15.0, 0)
+	o3 := NewOrder(false, 35.0, 0)
 	ob.PlaceLimitOrder(100.0, o1)
 	ob.PlaceLimitOrder(150.0, o2)
 	ob.PlaceLimitOrder(200.0, o3)
@@ -145,9 +145,9 @@ func TestBidTotalVolume(t *testing.T) {
 	ob := NewOrderbook()
 
 	// Create some test limits
-	o1 := NewOrder(true, 15.0)
-	o2 := NewOrder(true, 5.0)
-	o3 := NewOrder(true, 15.0)
+	o1 := NewOrder(true, 15.0, 0)
+	o2 := NewOrder(true, 5.0, 0)
+	o3 := NewOrder(true, 15.0, 0)
 
 	// Add the limits to the orderbook's bids
 	ob.PlaceLimitOrder(100, o1)
@@ -166,9 +166,9 @@ func TestAskTotalVolume(t *testing.T) {
 	ob := NewOrderbook()
 
 	// Create some test limits
-	o1 := NewOrder(false, 10.0)
-	o2 := NewOrder(false, 5.0)
-	o3 := NewOrder(false, 15.0)
+	o1 := NewOrder(false, 10.0, 0)
+	o2 := NewOrder(false, 5.0, 0)
+	o3 := NewOrder(false, 15.0, 0)
 
 	// Add the limits to the orderbook's asks
 	ob.PlaceLimitOrder(100, o1)

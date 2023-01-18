@@ -7,8 +7,8 @@ import (
 
 func TestDeleteOrder(t *testing.T) {
 	l := NewLimit(1000)
-	o1 := NewOrder(true, 2)
-	o2 := NewOrder(false, 3)
+	o1 := NewOrder(true, 2, 0)
+	o2 := NewOrder(false, 3, 0)
 	l.AddOrder(o1)
 	l.AddOrder(o2)
 
@@ -18,7 +18,7 @@ func TestDeleteOrder(t *testing.T) {
 	require.Equal(t, 3.0, l.TotalVolume)
 
 	// Test case 2: delete an order that does not exist in the limit
-	o3 := NewOrder(true, 2)
+	o3 := NewOrder(true, 2, 0)
 	l.AddOrder(o3)
 	l.DeleteOrder(o3)
 
@@ -33,20 +33,20 @@ func TestDeleteOrder(t *testing.T) {
 
 func TestFill(t *testing.T) {
 	l := NewLimit(1000)
-	o1 := NewOrder(true, 2)
-	o2 := NewOrder(false, 3)
+	o1 := NewOrder(true, 2, 0)
+	o2 := NewOrder(false, 3, 0)
 	l.AddOrder(o1)
 	l.AddOrder(o2)
 
 	// Test case 1: fill a sell order with a buy order
-	o3 := NewOrder(false, 5)
+	o3 := NewOrder(false, 5, 0)
 	matches := l.Fill(o3)
 	require.Equal(t, 2, len(matches))
 	require.Equal(t, 2.0, matches[0].AmountFilled)
 	require.Equal(t, 0.0, l.TotalVolume)
 
 	// Test case 2: fill a buy order with multiple sell orders
-	o4 := NewOrder(true, 5)
+	o4 := NewOrder(true, 5, 0)
 	matches = l.Fill(o4)
 
 	require.Equal(t, 0, len(matches))

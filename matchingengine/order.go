@@ -7,7 +7,8 @@ import (
 )
 
 type Order struct {
-	ID        int64   // The ID concept is only for external APIs
+	ID        uint64  // The ID concept is only for external APIs
+	UserID    uint64  // UserID to identify who puts the order
 	Amount    float64 // Amount of our crypto
 	Bid       bool    // Is this a sell or buy Order
 	Limit     *Limit  // To keep track of what limit this order is set in
@@ -21,9 +22,10 @@ func (o Orders) Less(i, j int) bool { return o[i].Timestamp < o[j].Timestamp }
 func (o Orders) Swap(i, j int)      { o[i], o[j] = o[j], o[i] }
 
 // NewOrder is constructor of Order struct
-func NewOrder(isBid bool, amount float64) *Order {
+func NewOrder(isBid bool, amount float64, userID uint64) *Order {
 	return &Order{
-		ID:        int64(rand.Intn(1000000)),
+		ID:        uint64(rand.Intn(1000000)),
+		UserID:    userID,
 		Amount:    amount,
 		Bid:       isBid,
 		Timestamp: time.Now().UnixNano(),
