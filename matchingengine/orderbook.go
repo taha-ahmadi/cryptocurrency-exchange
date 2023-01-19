@@ -2,6 +2,7 @@ package matchingengine
 
 import (
 	"sort"
+	"sync"
 )
 
 // Orderbook contains our asks and bids; orderbook would need to be persisted in a db somehow and shared between clients
@@ -21,6 +22,8 @@ type Orderbook struct {
 
 	// To keep track Orders for operations like canceling through APIs
 	Orders map[uint64]*Order
+
+	mu *sync.Mutex
 }
 
 // NewOrderbook is constructor of Orderbook struct
@@ -38,6 +41,9 @@ func NewOrderbook() *Orderbook {
 
 // PlaceMarketOrder will fill the order with orderbook asks or bids, and also checks the volume for specific order request
 func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
+	ob.mu.Lock()
+	defer ob.mu.Unlock()
+
 	var matches Matches
 
 	if o.Bid {
@@ -54,7 +60,7 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 			// Check if there are no more Orders in the limit. we can keep limits without any Orders but we will
 			// remove it because of memory efficiency
 			if len(ask.Orders) == 0 {
-				ob.clearLimit(true, ask)
+				ob.clearLimit(false, ask)
 			}
 		}
 	} else {
@@ -66,7 +72,7 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 			matches = append(matches, bidsMatches...)
 
 			if len(bid.Orders) == 0 {
-				ob.clearLimit(false, bid)
+				ob.clearLimit(true, bid)
 			}
 		}
 
@@ -100,8 +106,8 @@ func (ob *Orderbook) PlaceLimitOrder(price float64, o *Order) {
 	limit.AddOrder(o)
 }
 
-func (ob *Orderbook) clearLimit(isBid bool, l *Limit) {
-	if isBid {
+func (ob *Orderbook) clearLimit(isLimitBid bool, l *Limit) {
+	if isLimitBid {
 		delete(ob.BidLimits, l.Price)
 		for i := 0; i < len(ob.bids); i++ {
 			if ob.bids[i] == l {
