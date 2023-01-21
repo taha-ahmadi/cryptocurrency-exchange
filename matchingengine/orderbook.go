@@ -26,7 +26,7 @@ type Orderbook struct {
 	mu *sync.Mutex
 }
 
-// NewOrderbook is constructor of Orderbook struct
+// NewOrderbook is constructor of Orderbook struct.
 func NewOrderbook() *Orderbook {
 	return &Orderbook{
 		asks: []*Limit{},
@@ -39,7 +39,7 @@ func NewOrderbook() *Orderbook {
 	}
 }
 
-// PlaceMarketOrder will fill the order with orderbook asks or bids, and also checks the volume for specific order request
+// PlaceMarketOrder will fill the order with orderbook asks or bids, and also checks the volume for specific order request.
 func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 	ob.mu.Lock()
 	defer ob.mu.Unlock()
@@ -53,12 +53,12 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 		}
 		// Iterate through all the ask Orders
 		for _, ask := range ob.Asks() {
-			// Fill the ask order with the market order
+			// Fill the ask order with the market order.
 			asksMatches := ask.Fill(o)
 			matches = append(matches, asksMatches...)
 
 			// Check if there are no more Orders in the limit. we can keep limits without any Orders but we will
-			// remove it because of memory efficiency
+			// remove it because of memory efficiency.
 			if len(ask.Orders) == 0 {
 				ob.clearLimit(false, ask)
 			}
@@ -81,7 +81,7 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 }
 
 func (ob *Orderbook) PlaceLimitOrder(price float64, o *Order) {
-	// Check if already there are asks or bids volume sitting in the order book for specific price
+	// Check if already there are asks or bids volume sitting in the order book for specific price.
 
 	var limit *Limit
 	if o.Bid {
@@ -126,13 +126,13 @@ func (ob *Orderbook) clearLimit(isLimitBid bool, l *Limit) {
 	}
 }
 
-// CancelOrder will delete the order from the limit
+// CancelOrder will delete the order from the limit.
 func (ob *Orderbook) CancelOrder(o *Order) {
 	o.Limit.DeleteOrder(o)
 	delete(ob.Orders, o.ID)
 }
 
-// BidTotalVolume returns total volume of the asks in the market
+// BidTotalVolume returns total volume of the asks in the market.
 func (ob *Orderbook) BidTotalVolume() float64 {
 	totalVolume := 0.0
 
@@ -143,7 +143,7 @@ func (ob *Orderbook) BidTotalVolume() float64 {
 	return totalVolume
 }
 
-// AskTotalVolume returns total volume of the asks in the market
+// AskTotalVolume returns total volume of the asks in the market.
 func (ob *Orderbook) AskTotalVolume() float64 {
 	totalVolume := 0.0
 

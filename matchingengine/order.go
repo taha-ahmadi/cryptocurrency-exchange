@@ -21,7 +21,7 @@ func (o Orders) Len() int           { return len(o) }
 func (o Orders) Less(i, j int) bool { return o[i].Timestamp < o[j].Timestamp }
 func (o Orders) Swap(i, j int)      { o[i], o[j] = o[j], o[i] }
 
-// NewOrder is constructor of Order struct
+// NewOrder is constructor of Order struct.
 func NewOrder(isBid bool, amount float64, userID uint64) *Order {
 	return &Order{
 		ID:        uint64(rand.Intn(1000000)),
