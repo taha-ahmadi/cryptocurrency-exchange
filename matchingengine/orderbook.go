@@ -3,6 +3,7 @@ package matchingengine
 import (
 	"sort"
 	"sync"
+	"time"
 )
 
 // Orderbook contains our asks and bids; orderbook would need to be persisted in a db somehow and shared between clients
@@ -23,7 +24,17 @@ type Orderbook struct {
 	// To keep track Orders for operations like canceling through APIs
 	Orders map[uint64]*Order
 
+	Trades []*Trade
+
 	mu *sync.Mutex
+}
+
+// Trade is each order filled match
+type Trade struct {
+	Price     float64
+	Size      float64
+	Bid       bool
+	Timestamp int64
 }
 
 // NewOrderbook is constructor of Orderbook struct.
@@ -35,15 +46,13 @@ func NewOrderbook() *Orderbook {
 		AskLimits: make(map[float64]*Limit),
 		BidLimits: make(map[float64]*Limit),
 
+		Trades: []*Trade{},
 		Orders: make(map[uint64]*Order),
 	}
 }
 
 // PlaceMarketOrder will fill the order with orderbook asks or bids, and also checks the volume for specific order request.
 func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
-	ob.mu.Lock()
-	defer ob.mu.Unlock()
-
 	var matches Matches
 
 	if o.Bid {
@@ -51,14 +60,14 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 		if o.Amount > ob.AskTotalVolume() {
 			panic("there is not enough volume in the orderbook")
 		}
-		// Iterate through all the ask Orders
+		//Iterate through all the ask Orders
 		for _, ask := range ob.Asks() {
-			// Fill the ask order with the market order.
+			//Fill the ask order with the market order.
 			asksMatches := ask.Fill(o)
 			matches = append(matches, asksMatches...)
 
-			// Check if there are no more Orders in the limit. we can keep limits without any Orders but we will
-			// remove it because of memory efficiency.
+			//Check if there are no more Orders in the limit. we can keep limits without any Orders but we will
+			//remove it because of memory efficiency.
 			if len(ask.Orders) == 0 {
 				ob.clearLimit(false, ask)
 			}
@@ -75,8 +84,18 @@ func (ob *Orderbook) PlaceMarketOrder(o *Order) Matches {
 				ob.clearLimit(true, bid)
 			}
 		}
-
 	}
+
+	for _, match := range matches {
+		trade := &Trade{
+			Price:     match.Price,
+			Size:      match.AmountFilled,
+			Timestamp: time.Now().UnixNano(),
+			Bid:       o.Bid,
+		}
+		ob.Trades = append(ob.Trades, trade)
+	}
+
 	return matches
 }
 
@@ -128,8 +147,13 @@ func (ob *Orderbook) clearLimit(isLimitBid bool, l *Limit) {
 
 // CancelOrder will delete the order from the limit.
 func (ob *Orderbook) CancelOrder(o *Order) {
+	limit := o.Limit
 	o.Limit.DeleteOrder(o)
 	delete(ob.Orders, o.ID)
+
+	if len(limit.Orders) == 0 {
+		ob.clearLimit(o.Bid, limit)
+	}
 }
 
 // BidTotalVolume returns total volume of the asks in the market.

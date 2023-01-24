@@ -64,7 +64,9 @@ func ServerEngine() {
 	e.GET("/books/:market", ex.HandleGetMarket)
 	e.GET("/books/:market/best/bid", ex.HandleGetBestBidLimit)
 	e.GET("/books/:market/best/ask", ex.HandleGetBestAskLimit)
+	e.GET("/orders/:userID", ex.HandleGetOrder)
 	e.POST("/orders", ex.HandlePlaceOrder)
+	e.GET("/trades/:market", ex.HandleGetTrades)
 	e.DELETE("/orders/:id", ex.CancelOrder)
 
 	e.Start(":3000")
