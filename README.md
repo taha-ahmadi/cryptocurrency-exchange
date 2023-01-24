@@ -1,3 +1,19 @@
+# Table of content
+
+- [Code](#code)
+- [Explanations](#explanations)
+    * [Matching Engine, The Limit and The Orders](#matching-engine--the-limit-and-the-orders)
+        + [What is Matching Engine](#what-is-matching-engine)
+            - [What is it? how does it work? and how can it help?](#what-is-it--how-does-it-work--and-how-can-it-help-)
+        + [What is The Order](#what-is-the-order)
+        + [What is The Limit](#what-is-the-limit)
+        + [What is the matching engine job?](#what-is-the-matching-engine-job-)
+    * [Market Maker](#market-maker)
+    * [APIs](#apis)
+
+
+# Code
+If you want to start reading code, start from the matchingengine directory.
 
 
 # Explanations
@@ -50,3 +66,10 @@ and sellers' orders are sorted in ascending order based on price.
 When a new order is placed,
 the **matching engine** will look for the best available match among the existing orders in the **order book**. If a match is found,
 the trade is executed and the orders are removed from the **order book**. If no match is found, the new order is added to the order book.
+
+
+## Market Maker
+
+
+
+## APIs

@@ -116,28 +116,21 @@ func TestPlaceLimitOrder(t *testing.T) {
 }
 
 func TestCancelOrder(t *testing.T) {
-	// Initialize an empty orderbook
 	ob := NewOrderbook()
+	buyOrder := NewOrder(true, 4, 0)
+	price := 10_000.0
+	ob.PlaceLimitOrder(price, buyOrder)
 
-	// Create three test Orders and remove one of them
-	o1 := NewOrder(false, 10.0, 0)
-	o2 := NewOrder(false, 15.0, 0)
-	o3 := NewOrder(false, 35.0, 0)
-	ob.PlaceLimitOrder(100.0, o1)
-	ob.PlaceLimitOrder(150.0, o2)
-	ob.PlaceLimitOrder(200.0, o3)
+	require.Equal(t, ob.BidTotalVolume(), 4.0)
 
-	require.Equal(t, 3, len(ob.Orders))
+	ob.CancelOrder(buyOrder)
+	require.Equal(t, ob.BidTotalVolume(), 0.0)
 
-	// Cancel the order
-	ob.CancelOrder(o1)
+	_, ok := ob.Orders[buyOrder.ID]
+	require.Equal(t, ok, false)
 
-	// Check if the order has been deleted from the limit
-	require.Equal(t, 2, len(ob.Orders))
-	_, ok := ob.Orders[o1.ID]
-	require.False(t, ok)
-	_, ok = ob.Orders[o2.ID]
-	require.True(t, ok)
+	_, ok = ob.BidLimits[price]
+	require.Equal(t, ok, false)
 }
 
 func TestBidTotalVolume(t *testing.T) {
