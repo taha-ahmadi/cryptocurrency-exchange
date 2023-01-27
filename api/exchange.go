@@ -4,10 +4,6 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/labstack/echo/v4"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/matchingengine"
 	"log"
 	"math/big"
 	"net/http"
@@ -15,16 +11,22 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/labstack/echo/v4"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/matchingengine"
 )
 
-type Market string
-type OrderType string
+type (
+	Market    string
+	OrderType string
+)
 
 const (
 	MarketETH Market = "ETH"
 	MarketBTC Market = "BTC"
-)
-const (
+
 	MarketOrder OrderType = "MARKET"
 	LimitOrder  OrderType = "LIMIT" // A limit order is a way to provide liquidity to exchange
 )
