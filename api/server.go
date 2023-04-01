@@ -3,11 +3,12 @@ package api
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
-	"log"
 )
 
 var (
@@ -33,7 +34,7 @@ func ServerEngine() {
 	// ETH client setup
 	ETHClient, err := ethclient.Dial(ETHHost)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("cannot dial eth client: %v\n", err)
 	}
 
 	ex, err := NewExchange(exchangePrivateKey, ETHClient)

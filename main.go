@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"github.com/taha-ahmadi/cryptocurrency-exchange/api"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/marketmaker"
-	"time"
 )
 
 func main() {
@@ -17,7 +19,7 @@ func main() {
 
 	// SeedMarket to add liquidity
 	if err := marketmaker.SeedMarket(mm); err != nil {
-		panic(err)
+		log.Fatalf("Seed Market error: %v\n", err)
 	}
 
 	// market making algorithm
