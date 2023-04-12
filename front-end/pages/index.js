@@ -2,6 +2,124 @@ import { useState, useEffect } from 'react';
 import Web3 from 'web3';
 import {ethers} from 'ethers';
 
+const OrderBook = ({ orderData }) => {
+  const { TotalAsksVolume, TotalBidsVolume, Asks, Bids } = orderData;
+
+ 
+  const formatDate = (timestamp) => {
+    const dateTime = new Date(timestamp / 1000000); // divide by 1 million for microseconds
+    // Format the date and time as desired using the Date object methods
+    const formattedDate = `${dateTime.toLocaleDateString()} ${dateTime.toLocaleTimeString()}`;
+    return formattedDate;
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 my-5">
+    <h2 className="text-3xl font-bold mb-4 text-center">Order Book</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-5">
+      <div className="bg-red-200 rounded-lg p-6 flex items-center justify-center">
+        <div>
+          <p className="text-2xl font-semibold mb-2 text-red-800">
+            Total Asks Volume
+          </p>
+          <p className="text-xl font-semibold text-center">{TotalAsksVolume}</p>
+        </div>
+      </div>
+      <div className="bg-green-200 rounded-lg p-6 flex items-center justify-center">
+        <div>
+          <p className="text-2xl font-semibold mb-2 text-green-800">
+            Total Bids Volume
+          </p>
+          <p className="text-xl font-semibold text-center">{TotalBidsVolume}</p>
+        </div>
+      </div>
+    </div>
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 className="text-xl font-bold mb-4">Asks</h3>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="text-left py-2 px-3">UserID</th>
+                <th className="text-left py-2 px-3">ID</th>
+                <th className="text-left py-2 px-3">Amount</th>
+                <th className="text-left py-2 px-3">Type</th>
+                <th className="text-left py-2 px-3">Price</th>
+                <th className="text-left py-2 px-3">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Asks.map((ask) => (
+                <tr key={ask.ID} className="border-b border-gray-300">
+                  <td className="py-2 px-3">{ask.UserID}</td>
+                  <td className="py-2 px-3">{ask.ID}</td>
+                  <td className="py-2 px-3">{ask.Amount}</td>
+                  <td className="py-2 px-3 text-red-600 font-semibold">
+                    Ask
+                  </td>
+                  <td className="py-2 px-3">{ask.Price}</td>
+                  <td className="py-2 px-3">{formatDate(ask.Timestamp)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold mb-4">Bids</h3>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="text-left py-2 px-3">UserID</th>
+                <th className="text-left py-2 px-3">ID</th>
+                <th className="text-left py-2 px-3">Amount</th>
+                <th className="text-left py-2 px-3">Type</th>
+                <th className="text-left py-2 px-3">Price</th>
+                <th className="text-left py-2 px-3">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Bids.map((bid) => (
+                <tr key={bid.ID} className="border-b border-gray-300">
+                  <td className="py-2 px-3">{bid.UserID}</td>
+                  <td className="py-2 px-3">{bid.ID}</td>
+                  <td className="py-2 px-3">{bid.Amount}</td>
+                  <td className="py-2 px-3 text-green-600 font-semibold">
+                    Bid
+                  </td>
+                  <td className="py-2 px-3">{bid.Price}</td>
+                  <td className="py-2 px-3">{formatDate(bid.Timestamp)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MyPage = () => {
+  const [orderData, setOrderData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch('http://localhost:3000/books/ETH');
+      const data = await response.json();
+      setOrderData(data);
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      {orderData ? <OrderBook orderData={orderData} /> : <p>Loading...</p>}
+    </div>
+  );
+};
 
 export default function Home() {
   const [walletBalance, setWalletBalance] = useState(null);
@@ -27,30 +145,8 @@ export default function Home() {
           </div>
 
           {/* Crypto Currency Ask and Bids */}
-          <div className="bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 rounded-lg p-6 shadow-md">
-            <h2 className="text-lg font-medium mb-4 text-white">Crypto Currency Ask and Bids</h2>
-            <table className="w-full table-fixed">
-              <thead>
-                <tr>
-                  <th className="text-left w-1/2 px-2 py-2 text-gray-100 text-sm">Ask Price</th>
-                  <th className="text-right w-1/2 px-2 py-2 text-gray-100 text-sm">Bid Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="text-left px-2 py-2 text-white text-sm">$4300</td>
-                  <td className="text-right px-2 py-2 text-white text-sm">$4298</td>
-                </tr>
-                <tr>
-                  <td className="text-left px-2 py-2 text-white text-sm">$4301</td>
-                  <td className="text-right px-2 py-2 text-white text-sm">$4297</td>
-                </tr>
-                <tr>
-                  <td className="text-left px-2 py-2 text-white text-sm">$4302</td>
-                  <td className="text-right px-2 py-2 text-white text-sm">$4296</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="">
+            
           </div>
 
           {/* Market Order */}
@@ -77,6 +173,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <MyPage />
     </div>
   );
 };
