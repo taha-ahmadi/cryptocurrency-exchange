@@ -4,18 +4,16 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/labstack/echo/v4"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/matchingengine"
 	"log"
 	"math/big"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
-
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/labstack/echo/v4"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/matchingengine"
 )
 
 type (
@@ -227,7 +225,7 @@ func (ex *Exchange) HandleGetMarket(c echo.Context) error {
 				Price:     limit.Price,
 				Amount:    order.Amount,
 				IsBid:     order.Bid,
-				Timestamp: time.Now().UnixNano(),
+				Timestamp: order.Timestamp,
 			}
 			orderbookResponse.Asks = append(orderbookResponse.Asks, &o)
 		}
@@ -242,7 +240,7 @@ func (ex *Exchange) HandleGetMarket(c echo.Context) error {
 				Price:     limit.Price,
 				Amount:    order.Amount,
 				IsBid:     order.Bid,
-				Timestamp: time.Now().UnixNano(),
+				Timestamp: order.Timestamp,
 			}
 			orderbookResponse.Bids = append(orderbookResponse.Bids, &o)
 		}

@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/labstack/echo/v4/middleware"
 	"log"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -30,7 +31,13 @@ func ServerEngine() {
 	ETHHost = viper.GetString("ETHHost")
 
 	e := echo.New()
+	config := middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:8080"},
+		AllowHeaders: []string{echo.HeaderAuthorization},
+	}
 
+	e.Use(middleware.CORSWithConfig(config))
+	
 	// ETH client setup
 	ETHClient, err := ethclient.Dial(ETHHost)
 	if err != nil {

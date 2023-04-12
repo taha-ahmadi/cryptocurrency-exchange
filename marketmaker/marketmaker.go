@@ -115,6 +115,7 @@ func MakeMarketSimple(c *MMClient) {
 
 		fmt.Println("best ask price", bestAsk)
 		fmt.Println("best bid price", bestBid)
+		time.Sleep(2 * time.Second)
 
 		<-ticker.C
 	}
