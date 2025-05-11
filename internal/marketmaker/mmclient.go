@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/api"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/matchingengine"
 	"net/http"
+
+	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/api"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/matchingengine"
 )
 
 const Endpoint = "http://localhost:3000"

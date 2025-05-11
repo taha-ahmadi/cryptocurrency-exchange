@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/labstack/echo/v4"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/matchingengine"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/matchingengine"
 )
 
 type (
