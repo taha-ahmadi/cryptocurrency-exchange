@@ -1,4 +1,4 @@
-package eth
+package ethclient
 
 import (
 	"context"
@@ -18,8 +18,8 @@ type Client struct {
 	ChainID *big.Int
 }
 
-// NewClient creates a new Ethereum client
-func NewClient(url string) (*Client, error) {
+// New creates a new Ethereum client
+func New(url string) (*Client, error) {
 	client, err := ethclient.Dial(url)
 	if err != nil {
 		return nil, err

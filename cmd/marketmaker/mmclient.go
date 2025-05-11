@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/api"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/exchanges"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/matchingengine"
 )
 
@@ -44,7 +44,7 @@ func (c *MMClient) GetTrades(market string) ([]*matchingengine.Trade, error) {
 	return trades, nil
 }
 
-func (c *MMClient) GetOrders(userID int64) (*api.GetOrdersResponse, error) {
+func (c *MMClient) GetOrders(userID int64) (*exchanges.GetOrdersResponse, error) {
 	e := fmt.Sprintf("%s/orders/%d", Endpoint, userID)
 
 	req, err := http.NewRequest(http.MethodGet, e, nil)
@@ -56,9 +56,8 @@ func (c *MMClient) GetOrders(userID int64) (*api.GetOrdersResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	orders := api.GetOrdersResponse{}
+	orders := exchanges.GetOrdersResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(&orders); err != nil {
-		panic(err)
 		return nil, err
 	}
 
@@ -72,14 +71,14 @@ type PlaceOrderParams struct {
 	Amount float64
 }
 
-func (c *MMClient) PlaceLimitOrder(p *PlaceOrderParams) (*api.PlaceLimitOrderResponse, error) {
-	params := &api.PlaceOrderRequest{
+func (c *MMClient) PlaceLimitOrder(p *PlaceOrderParams) (*exchanges.PlaceOrderResponse, error) {
+	params := &exchanges.PlaceOrderRequest{
 		UserID: p.UserID,
-		Type:   api.LimitOrder,
+		Type:   exchanges.LimitOrder,
 		IsBid:  p.Bid,
 		Amount: p.Amount,
 		Price:  p.Price,
-		Market: api.MarketETH,
+		Market: exchanges.MarketETH,
 	}
 
 	body, err := json.Marshal(params)
@@ -99,21 +98,21 @@ func (c *MMClient) PlaceLimitOrder(p *PlaceOrderParams) (*api.PlaceLimitOrderRes
 		return nil, err
 	}
 
-	placeOrderResponse := &api.PlaceLimitOrderResponse{}
+	placeOrderResponse := &exchanges.PlaceOrderResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(placeOrderResponse); err != nil {
 		return nil, err
 	}
 
 	return placeOrderResponse, nil
 }
-func (c *MMClient) PlaceMarketOrder(params *PlaceOrderParams) (*api.PlaceLimitOrderResponse, error) {
-	endpoint := Endpoint + "/order"
-	data := api.PlaceOrderRequest{
+func (c *MMClient) PlaceMarketOrder(params *PlaceOrderParams) (*exchanges.PlaceOrderResponse, error) {
+	endpoint := Endpoint + "/orders"
+	data := exchanges.PlaceOrderRequest{
 		UserID: params.UserID,
-		Type:   api.MarketOrder,
+		Type:   exchanges.MarketOrder,
 		IsBid:  params.Bid,
 		Amount: params.Amount,
-		Market: api.MarketETH, // Hard coded ETH because we just support ETH for now
+		Market: exchanges.MarketETH, // Hard coded ETH because we just support ETH for now
 	}
 	body, err := json.Marshal(data)
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewReader(body))
@@ -126,7 +125,7 @@ func (c *MMClient) PlaceMarketOrder(params *PlaceOrderParams) (*api.PlaceLimitOr
 		return nil, err
 	}
 
-	var result = &api.PlaceLimitOrderResponse{}
+	var result = &exchanges.PlaceOrderResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(result); err != nil {
 		return nil, err
 	}
@@ -134,7 +133,7 @@ func (c *MMClient) PlaceMarketOrder(params *PlaceOrderParams) (*api.PlaceLimitOr
 }
 
 func (c *MMClient) CancelOrder(orderID uint64) error {
-	endpoint := fmt.Sprintf("%s/order/%d", Endpoint, orderID)
+	endpoint := fmt.Sprintf("%s/orders/%d", Endpoint, orderID)
 	req, err := http.NewRequest(http.MethodDelete, endpoint, nil)
 	if err != nil {
 		return err
@@ -162,7 +161,7 @@ func (c *MMClient) GetBestBid() (float64, error) {
 		return 0.0, err
 	}
 
-	priceResp := &api.PriceResponse{}
+	priceResp := &exchanges.PriceResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(priceResp); err != nil {
 		return 0.0, err
 	}
@@ -182,7 +181,7 @@ func (c *MMClient) GetBestAsk() (float64, error) {
 		return 0, err
 	}
 
-	priceResp := &api.PriceResponse{}
+	priceResp := &exchanges.PriceResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(priceResp); err != nil {
 		return 0, err
 	}

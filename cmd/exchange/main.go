@@ -4,9 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/taha-ahmadi/cryptocurrency-exchange/cmd/exchange/server"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/cmd/marketmaker"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/config"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/marketmaker"
+	server "github.com/taha-ahmadi/cryptocurrency-exchange/internal/delivery/http"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 
 	// Start the server in a goroutine
 	go func() {
-		srv, err := server.NewServer(cfg)
+		srv, err := server.New(cfg)
 		if err != nil {
 			log.Fatalf("Failed to create server: %v", err)
 		}

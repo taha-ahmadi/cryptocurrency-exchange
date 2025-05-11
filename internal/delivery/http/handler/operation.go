@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"encoding/json"
@@ -8,16 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/exchanges"
 )
-
-// Handler handles HTTP requests
-type Handler struct {
-	Exchange *exchanges.Exchange
-}
-
-// NewHandler creates a new handler
-func NewHandler(exchange *exchanges.Exchange) *Handler {
-	return &Handler{Exchange: exchange}
-}
 
 // HandleGetMarket handles the GET /books/:market endpoint
 func (h *Handler) HandleGetMarket(c echo.Context) error {
@@ -112,15 +102,4 @@ func (h *Handler) HandleCancelOrder(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "order cancelled successfully"})
-}
-
-// RegisterRoutes registers all routes with the Echo server
-func (h *Handler) RegisterRoutes(e *echo.Echo) {
-	e.GET("/books/:market", h.HandleGetMarket)
-	e.GET("/books/:market/best/bid", h.HandleGetBestBidLimit)
-	e.GET("/books/:market/best/ask", h.HandleGetBestAskLimit)
-	e.GET("/orders/:userID", h.HandleGetOrder)
-	e.POST("/orders", h.HandlePlaceOrder)
-	e.GET("/trades/:market", h.HandleGetTrades)
-	e.DELETE("/orders/:id", h.HandleCancelOrder)
 }

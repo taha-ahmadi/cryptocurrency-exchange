@@ -12,23 +12,23 @@ import (
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/cmd/exchange/handlers"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/config"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/eth"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/delivery/http/handler"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/delivery/http/middleware"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/exchanges"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/middleware"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/models"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/pkg/ethclient"
 )
 
 // Server represents the HTTP server for the exchange
 type Server struct {
 	echo    *echo.Echo
-	handler *handlers.Handler
+	handler *handler.Handler
 	config  *config.Config
 }
 
-// NewServer creates a new HTTP server
-func NewServer(cfg *config.Config) (*Server, error) {
+// New creates a new HTTP server
+func New(cfg *config.Config) (*Server, error) {
 	// Create Echo instance
 	e := echo.New()
 
@@ -48,13 +48,13 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	e.Use(middleware.ErrorHandler())
 
 	// Create ETH client
-	ethClient, err := eth.NewClient(cfg.ETHHost)
+	ethClient, err := ethclient.New(cfg.ETHHost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ETH client: %w", err)
 	}
 
 	// Create exchange
-	exchange, err := exchanges.NewExchange(cfg.ExchangePrivateKey, ethClient)
+	exchange, err := exchanges.New(cfg.ExchangePrivateKey, ethClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create exchange: %w", err)
 	}
@@ -74,7 +74,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	exchange.AddUser(user2)
 
 	// Create handler
-	handler := handlers.NewHandler(exchange)
+	handler := handler.New(exchange)
 
 	return &Server{
 		echo:    e,

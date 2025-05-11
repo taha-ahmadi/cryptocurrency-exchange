@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/eth"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/matchingengine"
 	"github.com/taha-ahmadi/cryptocurrency-exchange/internal/models"
+	"github.com/taha-ahmadi/cryptocurrency-exchange/pkg/ethclient"
 )
 
 // Exchange represents the main exchange functionality
@@ -20,13 +20,13 @@ type Exchange struct {
 	Users      map[uint64]*models.User
 	Orders     map[uint64][]*matchingengine.Order
 	PrivateKey *ecdsa.PrivateKey
-	ETHClient  *eth.Client
+	ETHClient  *ethclient.Client
 	Orderbooks map[Market]*matchingengine.Orderbook
 	mu         sync.RWMutex
 }
 
-// NewExchange creates a new exchange instance
-func NewExchange(privateKey string, ethClient *eth.Client) (*Exchange, error) {
+// New creates a new exchange instance
+func New(privateKey string, ethClient *ethclient.Client) (*Exchange, error) {
 	orderbooks := make(map[Market]*matchingengine.Orderbook)
 	orderbooks[MarketETH] = matchingengine.NewOrderbook()
 	orderbooks[MarketBTC] = matchingengine.NewOrderbook()
